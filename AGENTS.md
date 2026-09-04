@@ -1,3 +1,9 @@
+# Repository Agent Instructions
+
+This root `AGENTS.md` is the authoritative source of repository instructions for coding agents. Tool-specific instruction files are compatibility bridges only and must not duplicate or override this file.
+
+Before planning or editing, read this file and every matching task guide under `agents/skills/` referenced below.
+
 # Task Guides
 
 Deeper instructions for specific kinds of work live in `agents/skills/`. Read the
