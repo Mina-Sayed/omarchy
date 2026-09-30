@@ -4,16 +4,30 @@ set -euo pipefail
 
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/base-test.sh"
 
-rules="$ROOT/default/hypr/apps/system.lua"
-class_rule='class = "(sublime_text|DesktopEditors|org.gnome.Nautilus|soffice|soffice.bin)"'
+require_command lua
 
-grep -F "$class_rule" "$rules" >/dev/null ||
-  fail "LibreOffice native file dialogs are covered by the floating dialog rule"
+# The rules system.lua actually hands Hyprland, one class<TAB>title<TAB>tag per line.
+emitted_rules() {
+  OMARCHY_PATH="$ROOT" lua <<'LUA'
+package.path = os.getenv("OMARCHY_PATH") .. "/?.lua;" .. package.path
 
-grep -F 'o.window({ class = "(soffice|soffice.bin)", title = "Open" }, { tag = "+floating-window" })' "$rules" >/dev/null ||
-  fail "LibreOffice's Open dialog, titled just Open, receives the floating-window tag"
+hl = {
+  window_rule = function(rule)
+    print((rule.match.class or "") .. "\t" .. (rule.match.title or "") .. "\t" .. (rule.tag or ""))
+  end,
+}
 
-grep -A2 -F "$class_rule" "$rules" | grep -F 'tag = "+floating-window"' >/dev/null ||
-  fail "LibreOffice native file dialogs receive the floating-window tag"
+require("default.hypr.helpers")
+require("default.hypr.apps.system")
+LUA
+}
+
+rules=$(emitted_rules) || fail "system.lua loads" "$rules"
+
+grep -P '^\(sublime_text\|DesktopEditors\|org\.gnome\.Nautilus\|soffice\|soffice\.bin\)\t\^\(Open\.\*Files\?\|.*\|Save\|.*\t\+floating-window$' <<<"$rules" >/dev/null ||
+  fail "LibreOffice's Save and Choose dialogs receive the floating-window tag" "$rules"
+
+grep -Fx $'(soffice|soffice.bin)\tOpen\t+floating-window' <<<"$rules" >/dev/null ||
+  fail "LibreOffice's Open dialog, titled just Open, receives the floating-window tag" "$rules"
 
 pass "LibreOffice native file dialogs use the standard floating dialog treatment"
