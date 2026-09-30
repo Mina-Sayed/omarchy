@@ -25,7 +25,7 @@ LUA
 rules=$(emitted_rules) || fail "system.lua loads" "$rules"
 
 grep -P '^\(sublime_text\|DesktopEditors\|org\.gnome\.Nautilus\|soffice\|soffice\.bin\)\t\^\(Open\.\*Files\?\|.*\|Save\|.*\t\+floating-window$' <<<"$rules" >/dev/null ||
-  fail "LibreOffice's Save and Choose dialogs receive the floating-window tag" "$rules"
+  fail "LibreOffice's Save dialog receives the floating-window tag" "$rules"
 
 grep -Fx $'(soffice|soffice.bin)\tOpen\t+floating-window' <<<"$rules" >/dev/null ||
   fail "LibreOffice's Open dialog, titled just Open, receives the floating-window tag" "$rules"
