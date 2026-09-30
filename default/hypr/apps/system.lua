@@ -15,9 +15,11 @@ o.window(
 -- whatever the app that asked for it titled it.
 o.window("xdg-desktop-portal-gtk", { tag = "+floating-window" })
 o.window({
-  class = "(sublime_text|DesktopEditors|org.gnome.Nautilus|soffice|soffice.bin|libreoffice.*)",
+  class = "(sublime_text|DesktopEditors|org.gnome.Nautilus|soffice|soffice.bin)",
   title = "^(Open.*Files?|Open [F|f]older.*|Save.*Files?|Save.*As|Save|All Files|.*wants to [open|save].*|[C|c]hoose.*)",
 }, { tag = "+floating-window" })
+-- LibreOffice titles its file picker just "Open", which in Nautilus is also a folder's window.
+o.window({ class = "(soffice|soffice.bin)", title = "Open" }, { tag = "+floating-window" })
 
 -- The About fastfetch layout needs more columns than the standard float provides.
 -- This size only covers the first launch: omarchy-launch-about measures the
